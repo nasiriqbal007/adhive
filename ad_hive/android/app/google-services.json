@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "360891009242",
+    "project_id": "adhive-5073d",
+    "storage_bucket": "adhive-5073d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:360891009242:android:56b64b73dd0d744093bde3",
+        "android_client_info": {
+          "package_name": "com.example.ad_hive"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRbVPEcOmKWW38f8h0fDGnsLIxYMwcIrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
