@@ -28,8 +28,7 @@ class AdminTaskPage extends StatefulWidget {
 class _AdminTaskPageState extends State<AdminTaskPage> {
   String searchQuery = '';
   List<PackageModel> allPackages = [];
-  List<TaskModel> allTasks = []; // Added to store all tasks
-
+  List<TaskModel> allTasks = [];
   String selectedStatus = 'All';
 
   @override
@@ -43,7 +42,7 @@ class _AdminTaskPageState extends State<AdminTaskPage> {
       Provider.of<TeamProvider>(context, listen: false).fetchAllMembers();
     });
     fetchPackages();
-    fetchTasks(); // Fetch tasks
+    fetchTasks();
   }
 
   Future<void> fetchPackages() async {
@@ -99,6 +98,52 @@ class _AdminTaskPageState extends State<AdminTaskPage> {
     );
   }
 
+  void openManualExtendDialog(TaskModel task) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: task.deadline?.toLocal() ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked == null) return;
+
+    final clientDoc =
+        await FirebaseFirestore.instance
+            .collection('clients')
+            .doc(task.clientId)
+            .get();
+
+    if (!clientDoc.exists) return;
+
+    final client = ClientModel.fromJson(clientDoc);
+
+    final updatedPackages =
+        client.packages!.map((pkg) {
+          if (pkg.packageId == task.packageId) {
+            return ClientPackage(
+              packageId: pkg.packageId,
+              startDate: pkg.startDate,
+              expiryDate: picked,
+            );
+          }
+          return pkg;
+        }).toList();
+
+    await FirebaseFirestore.instance
+        .collection('clients')
+        .doc(clientDoc.id)
+        .set({
+          'packages': updatedPackages.map((e) => e.toJson()).toList(),
+        }, SetOptions(merge: true));
+
+    await FirebaseFirestore.instance.collection('tasks').doc(task.id).update({
+      'deadline': Timestamp.fromDate(picked),
+    });
+
+    await fetchTasks();
+  }
+
   Widget buildTaskSection() {
     return ListView(
       children: [
@@ -107,6 +152,7 @@ class _AdminTaskPageState extends State<AdminTaskPage> {
           role: 'admin',
           onChangeDeadline:
               (task, isAccepted) => handleExtensionDecision(task, isAccepted),
+          onManualExtend: (task) => openManualExtendDialog(task),
         ),
       ],
     );

@@ -15,9 +15,11 @@ import 'package:provider/provider.dart';
 
 class TaskListWithStats extends StatefulWidget {
   final List<TaskModel> allTasks;
-  final String role; // 'admin', 'team', 'client'
+  final String role;
   final void Function(TaskModel task)? onExtensionRequest;
   final void Function(TaskModel task, bool)? onChangeDeadline;
+  final void Function(TaskModel task)? onManualExtend;
+  final void Function(TaskModel task)? feedBack;
 
   const TaskListWithStats({
     super.key,
@@ -25,6 +27,8 @@ class TaskListWithStats extends StatefulWidget {
     required this.role,
     this.onExtensionRequest,
     this.onChangeDeadline,
+    this.onManualExtend,
+    this.feedBack,
   });
 
   @override
@@ -203,6 +207,14 @@ class _TaskListWithStatsState extends State<TaskListWithStats> {
               task.title ?? '',
               style: Theme.of(context).textTheme.titleSmall,
             ),
+            if (widget.role == 'admin' && task.status != 'completed')
+              Align(
+                alignment: Alignment.centerRight,
+                child: PrimaryTextButton(
+                  text: "Extend futhuter",
+                  onPressed: () => widget.onManualExtend?.call(task),
+                ),
+              ),
 
             const SizedBox(height: 6),
             if (widget.role == 'client')
@@ -273,7 +285,7 @@ class _TaskListWithStatsState extends State<TaskListWithStats> {
               runSpacing: 16,
               runAlignment: WrapAlignment.spaceBetween,
               children: [
-                if (widget.role == 'team')
+                if (widget.role == 'team' && task.status != 'completed')
                   Wrap(
                     spacing: 16,
                     runSpacing: 16,
@@ -290,11 +302,19 @@ class _TaskListWithStatsState extends State<TaskListWithStats> {
                       SizedBox(
                         width: 200,
                         child: PrimaryButton(
-                          text: "Add Words",
+                          text: "Add Work",
                           onPressed: () => _openAddWordsDialog(task),
                         ),
                       ),
                     ],
+                  ),
+                if (widget.role == 'client' && task.status == 'completed')
+                  SizedBox(
+                    width: 200,
+                    child: PrimaryButton(
+                      text: "Add Feedback",
+                      onPressed: () => widget.feedBack?.call(task),
+                    ),
                   ),
                 if (widget.role == 'admin' &&
                     task.requests != null &&
@@ -468,10 +488,15 @@ class _TaskListWithStatsState extends State<TaskListWithStats> {
                         updatedChunks[selectedChunkIndex]['isDone'] = true;
                       }
 
+                      final allDone = updatedChunks.every(
+                        (chunk) => chunk['isDone'] == true,
+                      );
                       final updatedStatus =
-                          (task.status == 'pending')
-                              ? 'in progress'
-                              : task.status;
+                          allDone
+                              ? 'completed'
+                              : (task.status == 'pending'
+                                  ? 'in progress'
+                                  : task.status);
 
                       await FirebaseFirestore.instance
                           .collection('tasks')

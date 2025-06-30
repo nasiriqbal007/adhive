@@ -134,7 +134,18 @@ class _LoginPageState extends State<LoginPage> {
                                   context.go('/signup');
                                 },
                               ),
+                              const SizedBox(height: 8),
                             ],
+                          ),
+                        ),
+                        Center(
+                          child: PrimaryTextButton(
+                            size: 16,
+                            fontWeight: FontWeight.w600,
+                            text: "Continue as Guest",
+                            onPressed: () {
+                              context.go('/guest-dashboard');
+                            },
                           ),
                         ),
                       ],

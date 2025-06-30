@@ -1,3 +1,4 @@
+import 'package:ad_hive/models/feedback_model.dart';
 import 'package:ad_hive/models/package_model.dart';
 import 'package:ad_hive/models/task_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -81,6 +82,21 @@ class DbServices {
     await clientRef.update({
       'packages': FieldValue.arrayUnion([clientPackage.toJson()]),
     });
+  }
+
+  Future<List<FeedbackModel>> fetchAllFeedbacks() async {
+    try {
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('feedbacks')
+              .orderBy('date', descending: true)
+              .get();
+
+      return snapshot.docs.map((doc) => FeedbackModel.fromMap(doc)).toList();
+    } catch (e) {
+      print('Error fetching feedbacks: $e');
+      return [];
+    }
   }
 
   Future<void> assignTaskToTeamMember({

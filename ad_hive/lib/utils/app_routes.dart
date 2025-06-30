@@ -1,4 +1,5 @@
 import 'package:ad_hive/auth_page.dart/forget_password.dart';
+import 'package:ad_hive/auth_page.dart/guest_page.dart';
 import 'package:ad_hive/pages/admin/task_page.dart';
 import 'package:ad_hive/pages/client/client_dashboard.dart';
 import 'package:ad_hive/pages/client/client_home.dart';
@@ -57,6 +58,10 @@ GoRouter createRouter(UserAuthProvider auth) {
       GoRoute(
         path: '/forgot-password',
         builder: (_, __) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
+        path: '/guest-dashboard',
+        builder: (_, __) => const GuestDashBoardPage(),
       ),
 
       ShellRoute(

@@ -1,11 +1,14 @@
+import 'package:ad_hive/models/feedback_model.dart';
 import 'package:ad_hive/provider/team_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:ad_hive/provider/client_provider.dart';
 import 'package:ad_hive/utils/app_colors.dart';
 import 'package:ad_hive/widegts/task_list.dart';
+import 'package:ad_hive/models/task_model.dart';
 
 class ClientDashboard extends StatefulWidget {
   const ClientDashboard({super.key});
@@ -35,6 +38,61 @@ class _ClientDashboardState extends State<ClientDashboard> {
     });
   }
 
+  void addFeedback(BuildContext context, TaskModel task) {
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            backgroundColor: AppColors.background,
+            title: const Text("Add Feedback"),
+            content: TextField(
+              controller: controller,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                hintText: 'Write your feedback...',
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed:
+                    () => Navigator.of(context, rootNavigator: true).pop(),
+
+                child: const Text("Cancel"),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  final text = controller.text.trim();
+                  if (text.isEmpty) return;
+
+                  final clientProvider = Provider.of<ClientProvider>(
+                    context,
+                    listen: false,
+                  );
+                  final client = clientProvider.getClientById(
+                    task.clientId ?? '',
+                  );
+                  final FeedbackModel feedback = FeedbackModel(
+                    clientId: task.clientId,
+                    taskId: task.id,
+                    feedback: text,
+                    clientName: client?.name ?? "N/A",
+                    date: DateTime.now(),
+                  );
+                  await FirebaseFirestore.instance
+                      .collection('feedbacks')
+                      .add(feedback.toMap());
+
+                  Navigator.of(context, rootNavigator: true).pop();
+                },
+                child: const Text("Submit"),
+              ),
+            ],
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final clientProvider = Provider.of<ClientProvider>(context);
@@ -45,66 +103,11 @@ class _ClientDashboardState extends State<ClientDashboard> {
         color: AppColors.whiteColor,
         child: ListView(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 20,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Welcome to Your Dashboard",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Here’s an overview of your current tasks and progress.",
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.mediumGrey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 16),
+            SizedBox(height: 30),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                "Package Alerts",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withAlpha(20),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withAlpha(30)),
-                ),
-                child: Row(
-                  children: const [
-                    Icon(Icons.warning_amber, color: Colors.orange),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "Your package will expire in 3 days. Please renew to avoid interruption.",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                "Your Assigned Tasks",
+                "Tasks",
                 style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
@@ -116,6 +119,7 @@ class _ClientDashboardState extends State<ClientDashboard> {
               TaskListWithStats(
                 allTasks: clientProvider.myTasks,
                 role: 'client',
+                feedBack: (task) => addFeedback(context, task),
               ),
           ],
         ),

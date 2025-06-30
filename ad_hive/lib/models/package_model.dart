@@ -9,7 +9,7 @@ class PackageModel {
   final int? duration;
   bool? isActive;
   final List<String>? descriptionPoints;
-  final List<int>? pointWordCounts; // ✅ Added
+  final List<int>? pointWordCounts;
   final DateTime? createdAt;
 
   PackageModel({
@@ -20,7 +20,7 @@ class PackageModel {
     this.duration,
     this.isActive,
     this.descriptionPoints,
-    this.pointWordCounts, // ✅ Added
+    this.pointWordCounts,
     this.createdAt,
   });
 
@@ -34,7 +34,7 @@ class PackageModel {
       isActive: data['isActive'],
       type: data['type'] ?? '',
       descriptionPoints: List<String>.from(data['descriptionPoints'] ?? []),
-      pointWordCounts: List<int>.from(data['pointWordCounts'] ?? []), // ✅ Added
+      pointWordCounts: List<int>.from(data['pointWordCounts'] ?? []),
       createdAt: (data['createdAt'] as Timestamp).toDate(),
     );
   }
@@ -47,8 +47,7 @@ class PackageModel {
       if (duration != null) 'duration': duration,
       if (isActive != null) 'isActive': isActive,
       if (descriptionPoints != null) 'descriptionPoints': descriptionPoints,
-      if (pointWordCounts != null)
-        'pointWordCounts': pointWordCounts, // ✅ Added
+      if (pointWordCounts != null) 'pointWordCounts': pointWordCounts,
       if (createdAt != null) 'createdAt': createdAt,
     };
   }
