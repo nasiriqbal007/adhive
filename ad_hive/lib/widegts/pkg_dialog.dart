@@ -9,7 +9,7 @@ void showAddPackageDialog(BuildContext parentContext) {
   final priceController = TextEditingController();
   final durationController = TextEditingController();
   final descriptionController = TextEditingController();
-  final typeController = TextEditingController(); // ✅ Type controller
+  final typeController = TextEditingController();
   bool isActive = true;
 
   showDialog(
@@ -81,7 +81,7 @@ void showAddPackageDialog(BuildContext parentContext) {
                   final priceText = priceController.text.trim();
                   final durationText = durationController.text.trim();
                   final descText = descriptionController.text.trim();
-                  final type = typeController.text.trim(); // ✅ added here
+                  final type = typeController.text.trim();
 
                   if (name.isEmpty) {
                     ScaffoldMessenger.of(parentContext).showSnackBar(

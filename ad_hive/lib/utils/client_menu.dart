@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 enum ClientMenu {
   dashboard('Dashboard', Icons.dashboard, '/client/dashboard'),
-  tasks('My Tasks', Icons.task, '/client/tasks'),
+
   packages('My Packages', Icons.card_giftcard, '/client/packages');
 
   final String label;

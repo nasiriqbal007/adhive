@@ -3,7 +3,7 @@ import 'package:ad_hive/auth_page.dart/guest_page.dart';
 import 'package:ad_hive/pages/admin/task_page.dart';
 import 'package:ad_hive/pages/client/client_dashboard.dart';
 import 'package:ad_hive/pages/client/client_home.dart';
-import 'package:ad_hive/pages/client/client_task_page.dart';
+
 import 'package:ad_hive/pages/team/team_home.dart';
 import 'package:ad_hive/pages/team/team_dash_board.dart';
 import 'package:ad_hive/provider/auth_provider.dart';
@@ -16,7 +16,6 @@ import 'package:ad_hive/auth_page.dart/login_page.dart';
 import 'package:ad_hive/pages/admin/overview.dart';
 import 'package:ad_hive/pages/client/cleint_packages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 
 GoRouter createRouter(UserAuthProvider auth) {
@@ -37,7 +36,6 @@ GoRouter createRouter(UserAuthProvider auth) {
         if (!isAtLogin && !isAtSignUp) return '/login';
         return null;
       }
-      print(role);
       if (isLoggedIn && isAtLogin) {
         switch (role) {
           case 'admin':
@@ -93,7 +91,6 @@ GoRouter createRouter(UserAuthProvider auth) {
             path: '/team/dashboard',
             builder: (_, __) => const TeamDashboard(),
           ),
-          GoRoute(path: '/team/tasks', builder: (_, __) => Text('')),
         ],
       ),
       ShellRoute(
@@ -103,10 +100,7 @@ GoRouter createRouter(UserAuthProvider auth) {
             path: '/client/dashboard',
             builder: (_, __) => const ClientDashboard(),
           ),
-          GoRoute(
-            path: '/client/tasks',
-            builder: (_, __) => const ClientTaskPage(),
-          ),
+
           GoRoute(
             path: '/client/packages',
             builder: (_, __) => const CleintPackagesPage(),
