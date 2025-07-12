@@ -1,6 +1,7 @@
 import 'package:ad_hive/models/team_model.dart';
 import 'package:ad_hive/provider/team_provider.dart';
 import 'package:ad_hive/widegts/serachbar.dart';
+import 'package:ad_hive/widegts/text_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -90,12 +91,12 @@ Future<void> showAssignTaskDialog(
                                     subtitle: Text(
                                       member.jobTitle ?? 'No Role',
                                     ),
-                                    trailing: ElevatedButton(
+                                    trailing: PrimaryTextButton(
                                       onPressed: () {
                                         Navigator.pop(context);
                                         onAssign(member);
                                       },
-                                      child: const Text('Assign'),
+                                      text: 'Assign',
                                     ),
                                   );
                                 },

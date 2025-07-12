@@ -97,6 +97,19 @@ class ClientProvider with ChangeNotifier {
     _setLoading(false);
   }
 
+  Future<void> rejectClient(String requestId) async {
+    _setLoading(true);
+    try {
+      await _dbServices.rejectClientRequest(requestId);
+      _pendingClients.removeWhere((c) => c.id == requestId);
+      _error = null;
+      notifyListeners();
+    } catch (e) {
+      _setError(e);
+    }
+    _setLoading(false);
+  }
+
   Future<void> fetchTasksForCurrentUser(String clientId) async {
     _setLoading(true);
     try {

@@ -5,7 +5,7 @@ import 'package:ad_hive/widegts/custom_textfield.dart';
 import 'package:ad_hive/widegts/primary_btn.dart';
 import 'package:ad_hive/widegts/text_btn.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -17,6 +17,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   late UserAuthProvider authProvider;
+  bool _showPassword = false;
 
   @override
   void didChangeDependencies() {
@@ -25,6 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _handleLogin() async {
+    authProvider.isLoginLoading = true;
     final error = await authProvider.loginUser(
       email: authProvider.loginEmailController.text.trim(),
       password: authProvider.loginPasswordController.text.trim(),
@@ -33,11 +35,22 @@ class _LoginPageState extends State<LoginPage> {
     if (!mounted) return;
 
     if (error == null) {
+      await Future.delayed(Duration(milliseconds: 500));
+      // After login
+
+      if (authProvider.userRole == 'admin') {
+        Navigator.pushReplacementNamed(context, '/admin/overview');
+      } else if (authProvider.userRole == 'client') {
+        Navigator.pushReplacementNamed(context, '/client/dashboard');
+      } else if (authProvider.userRole == 'team') {
+        Navigator.pushReplacementNamed(context, '/team/dashboard');
+      }
+
       showAppSnackbar(message: 'Logged in successfully!', context: context);
-      context.go('/');
     } else if (error.isNotEmpty) {
       showAppSnackbar(message: error, isError: true, context: context);
     }
+    authProvider.isLoginLoading = false;
   }
 
   @override
@@ -80,14 +93,18 @@ class _LoginPageState extends State<LoginPage> {
                           label: 'Password',
                           hint: 'Password',
                           controller: auth.loginPasswordController,
-                          obscureText: !auth.isLoginPasswordVisible,
+                          obscureText: !_showPassword,
                           suffixIcon: Icon(
-                            auth.isLoginPasswordVisible
+                            _showPassword
                                 ? Icons.visibility_off
                                 : Icons.visibility,
                             color: AppColors.mainBlack,
                           ),
-                          onSuffixIconTap: auth.toggleLoginPasswordVisibility,
+                          onSuffixIconTap: () {
+                            setState(() {
+                              _showPassword = !_showPassword;
+                            });
+                          },
                         ),
                         const SizedBox(height: 12),
                         Row(
@@ -96,10 +113,8 @@ class _LoginPageState extends State<LoginPage> {
                             Row(
                               children: [
                                 Checkbox(
-                                  value: auth.isRememberMe,
-                                  onChanged:
-                                      (val) =>
-                                          auth.toggleRememberMe(val ?? false),
+                                  value: false,
+                                  onChanged: (val) => true,
                                 ),
                                 Text(
                                   "Remember me",
@@ -110,7 +125,10 @@ class _LoginPageState extends State<LoginPage> {
                             PrimaryTextButton(
                               text: "Forgot Password?",
                               onPressed: () {
-                                context.push('/forgot-password');
+                                Navigator.pushNamed(
+                                  context,
+                                  '/forgot-password',
+                                );
                               },
                             ),
                           ],
@@ -131,7 +149,7 @@ class _LoginPageState extends State<LoginPage> {
                                 size: 16,
                                 fontWeight: FontWeight.w600,
                                 onPressed: () {
-                                  context.go('/signup');
+                                  Navigator.pushNamed(context, '/signup');
                                 },
                               ),
                               const SizedBox(height: 8),
@@ -144,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                             fontWeight: FontWeight.w600,
                             text: "Continue as Guest",
                             onPressed: () {
-                              context.go('/guest-dashboard');
+                              Navigator.pushNamed(context, '/guest-dashboard');
                             },
                           ),
                         ),

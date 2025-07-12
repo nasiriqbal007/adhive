@@ -24,30 +24,11 @@ class UserAuthProvider with ChangeNotifier {
   bool isLoginLoading = false;
   bool isLoading = false;
   bool isSignUpLoading = false;
-  bool isRememberMe = false;
-  bool isLoginPasswordVisible = false;
-  bool isSignUpPasswordVisible = false;
+
   String? userRole;
   bool isInitialized = false;
 
-  final routerNotifier = ValueNotifier(0);
   User? get currentUser => _authService.currentUser;
-
-  // Toggles
-  void toggleRememberMe(bool value) {
-    isRememberMe = value;
-    notifyListeners();
-  }
-
-  void toggleLoginPasswordVisibility() {
-    isLoginPasswordVisible = !isLoginPasswordVisible;
-    notifyListeners();
-  }
-
-  void toggleSignUpPasswordVisibility() {
-    isSignUpPasswordVisible = !isSignUpPasswordVisible;
-    notifyListeners();
-  }
 
   // Common validation
   String? validateEmailAndPassword(String email, String password) {
@@ -74,8 +55,6 @@ class UserAuthProvider with ChangeNotifier {
       userRole = await _dbService.getUserRole(user.uid);
     }
     isInitialized = true;
-    routerNotifier.value++;
-    notifyListeners();
   }
 
   Future<String?> sendResetLink(String email) async {
@@ -98,7 +77,7 @@ class UserAuthProvider with ChangeNotifier {
     await _authService.signOut();
     userRole = null;
     isInitialized = false;
-    routerNotifier.value++;
+
     notifyListeners();
   }
 
@@ -110,11 +89,13 @@ class UserAuthProvider with ChangeNotifier {
     if (validationError != null) return validationError;
 
     isLoginLoading = true;
+
     notifyListeners();
 
     try {
       await _authService.loginUser(email, password);
       await checkUserRole();
+      notifyListeners();
       return null;
     } catch (e) {
       return 'Login failed: $e';

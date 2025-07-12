@@ -5,7 +5,7 @@ import 'package:ad_hive/widegts/custom_textfield.dart';
 import 'package:ad_hive/widegts/primary_btn.dart';
 import 'package:ad_hive/widegts/text_btn.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 class ClientSignUpPage extends StatefulWidget {
@@ -19,18 +19,21 @@ class _ClientSignUpPageState extends State<ClientSignUpPage> {
   late UserAuthProvider authProvider;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void initState() {
+    super.initState();
+
     authProvider = Provider.of<UserAuthProvider>(context, listen: false);
   }
 
   bool _isSubmitting = false;
+  bool _showPassword = false;
+
   void _handleSignUp() async {
     setState(() => _isSubmitting = true);
 
     final error = await authProvider.clientSignUpRequest();
 
-    await Future.delayed(const Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 1800));
 
     if (!mounted) return;
 
@@ -44,7 +47,7 @@ class _ClientSignUpPageState extends State<ClientSignUpPage> {
 
       await Future.delayed(const Duration(seconds: 1));
 
-      if (mounted) context.go('/login');
+      if (mounted) Navigator.pushNamed(context, '/signup');
     } else {
       showAppSnackbar(message: error, isError: true, context: context);
     }
@@ -99,15 +102,18 @@ class _ClientSignUpPageState extends State<ClientSignUpPage> {
                               label: 'Password',
                               hint: 'At least 6 characters',
                               controller: auth.passwordController,
-                              obscureText: !auth.isSignUpPasswordVisible,
+                              obscureText: !_showPassword,
                               suffixIcon: Icon(
-                                auth.isSignUpPasswordVisible
+                                _showPassword
                                     ? Icons.visibility_off
                                     : Icons.visibility,
                                 color: AppColors.mainBlack,
                               ),
-                              onSuffixIconTap:
-                                  auth.toggleSignUpPasswordVisibility,
+                              onSuffixIconTap: () {
+                                setState(() {
+                                  _showPassword = !_showPassword;
+                                });
+                              },
                             ),
                             const SizedBox(height: 16),
                             CustomTextField(
@@ -137,7 +143,7 @@ class _ClientSignUpPageState extends State<ClientSignUpPage> {
                                     size: 16,
                                     fontWeight: FontWeight.w600,
                                     onPressed: () {
-                                      context.go('/login');
+                                      Navigator.pushNamed(context, '/login');
                                     },
                                   ),
                                 ],

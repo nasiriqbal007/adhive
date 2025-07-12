@@ -296,9 +296,7 @@ class _AdminTaskPageState extends State<AdminTaskPage> {
                       newExpiryDate: newExpiry,
                       updatedPackage: updatedPackage,
                     );
-                    if (mounted) {
-                      Navigator.of(context, rootNavigator: true).pop();
-                    }
+                    fetchTasks();
                   }),
             ),
           ),

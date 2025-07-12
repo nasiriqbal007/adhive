@@ -3,7 +3,7 @@ import 'package:ad_hive/provider/client_provider.dart';
 import 'package:ad_hive/utils/client_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:ad_hive/utils/app_colors.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 class ClientHome extends StatefulWidget {
@@ -16,9 +16,9 @@ class ClientHome extends StatefulWidget {
 
 class _ClientHomeState extends State<ClientHome> {
   ClientMenu _getCurrentMenu(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.toString();
+    final String? routeName = ModalRoute.of(context)?.settings.name;
     return ClientMenu.values.firstWhere(
-      (menu) => location.startsWith(menu.path),
+      (menu) => routeName?.startsWith(menu.path) ?? false,
       orElse: () => ClientMenu.dashboard,
     );
   }
@@ -158,7 +158,7 @@ class _ClientHomeState extends State<ClientHome> {
         ),
         onTap: () {
           if (isInDrawer) Navigator.of(context).pop();
-          context.go(item.path);
+          Navigator.pushReplacementNamed(context, item.path);
         },
       ),
     );
@@ -180,7 +180,13 @@ class _ClientHomeState extends State<ClientHome> {
           listen: false,
         );
         await authProvider.logout();
-        if (context.mounted) context.go('/login');
+        if (context.mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
+        }
       },
     );
   }

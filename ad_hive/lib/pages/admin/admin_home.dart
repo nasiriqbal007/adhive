@@ -2,7 +2,7 @@ import 'package:ad_hive/provider/auth_provider.dart';
 import 'package:ad_hive/utils/admin_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:ad_hive/utils/app_colors.dart';
-import 'package:go_router/go_router.dart';
+
 import 'package:provider/provider.dart';
 
 class AdminHome extends StatelessWidget {
@@ -10,9 +10,10 @@ class AdminHome extends StatelessWidget {
   const AdminHome({super.key, required this.child});
 
   AdminMenu _getCurrentMenu(BuildContext context) {
-    final String location = GoRouterState.of(context).uri.toString();
+    final String? routeName = ModalRoute.of(context)?.settings.name;
+
     return AdminMenu.values.firstWhere(
-      (menu) => location.startsWith(menu.path),
+      (menu) => routeName?.startsWith(menu.path) ?? false,
       orElse: () => AdminMenu.overview,
     );
   }
@@ -127,7 +128,7 @@ class AdminHome extends StatelessWidget {
         ),
         onTap: () {
           if (isInDrawer) Navigator.of(context).pop();
-          context.go(item.path);
+          Navigator.pushReplacementNamed(context, item.path);
         },
       ),
     );
@@ -149,7 +150,12 @@ class AdminHome extends StatelessWidget {
           listen: false,
         );
         await authProvider.logout();
-        if (context.mounted) context.go('/login');
+        if (context.mounted)
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/login',
+            (route) => false,
+          );
       },
     );
   }

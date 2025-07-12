@@ -61,6 +61,16 @@ class DbServices {
     });
   }
 
+  //reject client
+  Future<void> rejectClientRequest(String requestId) async {
+    final requestDocRef = _firestore.collection('requests').doc(requestId);
+    final requestSnapshot = await requestDocRef.get();
+
+    if (!requestSnapshot.exists) throw 'Request not found';
+
+    await requestDocRef.delete();
+  }
+
   // Fetch all pending client
   Future<List<ClientModel>> fetchPendingClients() async {
     final snapshot =
